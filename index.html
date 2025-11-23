@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>3D Graph Learning - Visualize Knowledge</title>
+  <link rel="stylesheet" href="/src/css/style.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+</head>
+
+<body>
+  <!-- 3D Background Container -->
+  <div id="canvas-container" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1;"></div>
+
+  <div id="app">
+    <!-- Navigation -->
+    <nav class="navbar glass-card"
+      style="position: fixed; top: 20px; left: 50%; transform: translateX(-50%); width: 90%; max-width: 1200px; z-index: 100; display: flex; justify-content: space-between; align-items: center; padding: 1rem 2rem;">
+      <div class="logo" style="font-weight: 700; font-size: 1.5rem; color: var(--primary-color);">
+        <i class="ri-node-tree"></i> GraphLearn
+      </div>
+      <div class="nav-links" style="display: flex; gap: 2rem;">
+        <a href="#features" class="nav-link">Features</a>
+        <a href="#how-it-works" class="nav-link">How it Works</a>
+        <a href="login.html" class="nav-link">Login</a>
+        <a href="signup.html" class="btn btn-primary">Sign Up</a>
+      </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero flex-center" style="height: 100vh; text-align: center; padding-top: 80px;">
+      <div class="container">
+        <h1 style="margin-bottom: 1rem;">Transform Documents into <br> <span class="text-gradient">Interactive 3D
+            Knowledge</span></h1>
+        <p style="font-size: 1.25rem; color: var(--text-secondary); max-width: 600px; margin: 0 auto 2rem;">
+          Upload your documents and watch them evolve into a structured 3D graph.
+          Powered by AI to help you research, study, and master any topic.
+        </p>
+        <div class="cta-group" style="display: flex; gap: 1rem; justify-content: center;">
+          <a href="login.html" class="btn btn-primary">Start Visualizing <i class="ri-arrow-right-line"></i></a>
+          <a href="#features" class="btn btn-outline">Learn More</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features"
+      style="padding: 100px 0; background: linear-gradient(to bottom, transparent, var(--bg-color));">
+      <div class="container">
+        <h2 class="text-center" style="text-align: center; margin-bottom: 3rem;">Why Choose GraphLearn?</h2>
+        <div class="grid-cols-2">
+          <div class="feature-card glass-card">
+            <i class="ri-file-text-line"
+              style="font-size: 2.5rem; color: var(--primary-color); margin-bottom: 1rem; display: block;"></i>
+            <h3>Smart OCR & Parsing</h3>
+            <p style="color: var(--text-secondary);">Instantly extract structured data from PDFs and images using
+              advanced Paddle OCR technology.</p>
+          </div>
+          <div class="feature-card glass-card">
+            <i class="ri-bubble-chart-line"
+              style="font-size: 2.5rem; color: var(--secondary-color); margin-bottom: 1rem; display: block;"></i>
+            <h3>3D Graph Visualization</h3>
+            <p style="color: var(--text-secondary);">Navigate through your knowledge with an immersive 3D node graph
+              that reveals hidden connections.</p>
+          </div>
+          <div class="feature-card glass-card">
+            <i class="ri-global-line"
+              style="font-size: 2.5rem; color: var(--accent-color); margin-bottom: 1rem; display: block;"></i>
+            <h3>AI-Powered Web Scraping</h3>
+            <p style="color: var(--text-secondary);">Automatically enrich your graph with relevant content scraped from
+              the web based on your study goals.</p>
+          </div>
+          <div class="feature-card glass-card">
+            <i class="ri-graduation-cap-line"
+              style="font-size: 2.5rem; color: #00ff88; margin-bottom: 1rem; display: block;"></i>
+            <h3>Tailored Study Modes</h3>
+            <p style="color: var(--text-secondary);">Choose between Research, General Study, or Exam Prep to get the
+              most relevant information.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer
+      style="padding: 2rem 0; border-top: 1px solid var(--border-color); text-align: center; color: var(--text-secondary);">
+      <div class="container">
+        <p>&copy; 2025 GraphLearn. All rights reserved.</p>
+      </div>
+    </footer>
+  </div>
+  <script type="module" src="/src/main.js"></script>
+</body>
+
+</html>

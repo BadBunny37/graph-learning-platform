@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dashboard - 3D Graph Learning</title>
+    <link rel="stylesheet" href="/src/css/style.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+    <style>
+        .dashboard-layout {
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .sidebar {
+            width: 260px;
+            background: var(--surface-color);
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            padding: 1.5rem;
+            z-index: 100;
+        }
+
+        .sidebar-logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 2rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1rem;
+            color: var(--text-secondary);
+            border-radius: 8px;
+            margin-bottom: 0.5rem;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .nav-item:hover,
+        .nav-item.active {
+            background: rgba(0, 229, 255, 0.1);
+            color: var(--primary-color);
+        }
+
+        .main-content {
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+            background: var(--bg-color);
+        }
+
+        .top-bar {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 50;
+            background: linear-gradient(to bottom, rgba(10, 10, 10, 0.8), transparent);
+        }
+
+        .upload-zone {
+            border: 2px dashed var(--border-color);
+            border-radius: 16px;
+            padding: 3rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            background: var(--glass-bg);
+            cursor: pointer;
+        }
+
+        .upload-zone:hover {
+            border-color: var(--primary-color);
+            background: rgba(0, 229, 255, 0.05);
+        }
+
+        .study-mode-card {
+            background: var(--surface-color);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .study-mode-card:hover,
+        .study-mode-card.selected {
+            border-color: var(--primary-color);
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0, 229, 255, 0.1);
+        }
+
+        .study-mode-card.selected {
+            background: rgba(0, 229, 255, 0.1);
+        }
+
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(5px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .modal-content {
+            width: 100%;
+            max-width: 500px;
+            background: var(--surface-color);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 2rem;
+            transform: scale(0.9);
+            transition: transform 0.3s ease;
+        }
+
+        .modal-overlay.active .modal-content {
+            transform: scale(1);
+        }
+
+        #graph-container {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 0;
+        }
+
+        .panel {
+            position: absolute;
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 1.5rem;
+            z-index: 10;
+        }
+
+        .control-panel {
+            top: 80px;
+            right: 20px;
+            width: 300px;
+            max-height: calc(100vh - 100px);
+            overflow-y: auto;
+        }
+
+        .center-panel {
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 80%;
+            max-width: 800px;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="app">
+        <div class="dashboard-layout">
+            <!-- Sidebar -->
+            <aside class="sidebar">
+                <div class="sidebar-logo">
+                    <i class="ri-node-tree"></i> GraphLearn
+                </div>
+                <nav>
+                    <div class="nav-item active">
+                        <i class="ri-dashboard-line"></i> Dashboard
+                    </div>
+                    <div class="nav-item">
+                        <i class="ri-folder-line"></i> My Projects
+                    </div>
+                    <div class="nav-item">
+                        <i class="ri-settings-line"></i> Settings
+                    </div>
+                </nav>
+                <div style="margin-top: auto;">
+                    <div class="nav-item" onclick="window.location.href='index.html'">
+                        <i class="ri-logout-box-line"></i> Logout
+                    </div>
+                </div>
+            </aside>
+
+            <!-- Main Content -->
+            <main class="main-content">
+                <!-- 3D Graph Background/View -->
+                <div id="graph-container"></div>
+
+                <!-- Top Bar -->
+                <div class="top-bar">
+                    <h2 style="font-size: 1.25rem; margin: 0;">New Project</h2>
+                    <div class="flex-center" style="gap: 1rem;">
+                        <button class="btn btn-outline" id="api-key-btn"
+                            style="padding: 0.5rem 1rem; font-size: 0.9rem;">
+                            <i class="ri-key-2-line"></i> API Key
+                        </button>
+                        <div class="user-avatar"
+                            style="width: 40px; height: 40px; border-radius: 50%; background: var(--gradient-primary); display: flex; align-items: center; justify-content: center; font-weight: 700;">
+                            JD
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Initial State: Upload & Setup -->
+                <div class="panel center-panel" id="setup-panel">
+                    <h2 class="text-center">Create New Graph</h2>
+                    <p class="text-center" style="color: var(--text-secondary); margin-bottom: 2rem;">Upload a document
+                        to start visualizing knowledge.</p>
+
+                    <!-- Upload Zone -->
+                    <div class="upload-zone" id="drop-zone">
+                        <i class="ri-upload-cloud-2-line"
+                            style="font-size: 3rem; color: var(--primary-color); margin-bottom: 1rem;"></i>
+                        <p style="font-weight: 600; margin-bottom: 0.5rem;">Drag & Drop your PDF here</p>
+                        <p style="font-size: 0.9rem; color: var(--text-secondary);">or click to browse files</p>
+                        <input type="file" id="file-input" hidden accept=".pdf,.png,.jpg,.jpeg">
+                    </div>
+
+                    <!-- Study Mode Selection -->
+                    <div style="margin-top: 2rem;">
+                        <p style="margin-bottom: 1rem; font-weight: 600;">Select Study Standard</p>
+                        <div class="grid-cols-2" style="grid-template-columns: repeat(3, 1fr); gap: 1rem;">
+                            <div class="study-mode-card selected" onclick="selectMode(this, 'research')">
+                                <i class="ri-microscope-line"
+                                    style="font-size: 1.5rem; color: var(--primary-color); margin-bottom: 0.5rem;"></i>
+                                <h4>Research</h4>
+                                <p style="font-size: 0.8rem; color: var(--text-secondary); margin-top: 0.5rem;">Deep
+                                    dive into academic sources</p>
+                            </div>
+                            <div class="study-mode-card" onclick="selectMode(this, 'general')">
+                                <i class="ri-book-open-line"
+                                    style="font-size: 1.5rem; color: var(--secondary-color); margin-bottom: 0.5rem;"></i>
+                                <h4>General</h4>
+                                <p style="font-size: 0.8rem; color: var(--text-secondary); margin-top: 0.5rem;">Broad
+                                    overview of the topic</p>
+                            </div>
+                            <div class="study-mode-card" onclick="selectMode(this, 'exam')">
+                                <i class="ri-pencil-ruler-2-line"
+                                    style="font-size: 1.5rem; color: var(--accent-color); margin-bottom: 0.5rem;"></i>
+                                <h4>Exam Prep</h4>
+                                <p style="font-size: 0.8rem; color: var(--text-secondary); margin-top: 0.5rem;">Key
+                                    concepts and summaries</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button class="btn btn-primary" style="width: 100%; margin-top: 2rem;" onclick="startProcessing()">
+                        Generate Graph <i class="ri-magic-line"></i>
+                    </button>
+                </div>
+
+                <!-- API Key Modal -->
+                <div class="modal-overlay" id="api-key-modal">
+                    <div class="modal-content">
+                        <div
+                            style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                            <h3>Gemini API Key</h3>
+                            <button onclick="closeModal('api-key-modal')"><i class="ri-close-line"
+                                    style="font-size: 1.5rem;"></i></button>
+                        </div>
+                        <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">
+                            To use the AI features, please provide your Google Gemini API Key. It will be stored locally
+                            in your browser.
+                        </p>
+                        <div class="form-group" style="margin-bottom: 1.5rem;">
+                            <input type="password" class="form-input" id="api-key-input"
+                                placeholder="Enter your API Key"
+                                style="width: 100%; padding: 0.75rem; background: rgba(0,0,0,0.2); border: 1px solid var(--border-color); border-radius: 8px; color: white;">
+                        </div>
+                        <div style="display: flex; justify-content: flex-end; gap: 1rem;">
+                            <button class="btn btn-outline" onclick="closeModal('api-key-modal')">Cancel</button>
+                            <button class="btn btn-primary" onclick="saveApiKey()">Save Key</button>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script src="//unpkg.com/3d-force-graph"></script>
+    <script type="module" src="/src/main.js"></script>
+    <script type="module">
+        import { getCurrentUser, getProfile, signOut, supabase } from './src/js/supabase.js';
+
+        // Global State
+        let currentUser = null;
+        let currentProfile = null;
+        let selectedMode = 'research';
+        let Graph = null;
+
+        // UI Elements
+        const apiKeyModal = document.getElementById('api-key-modal');
+        const apiKeyInput = document.getElementById('api-key-input');
+        const dropZone = document.getElementById('drop-zone');
+        const fileInput = document.getElementById('file-input');
+        const setupPanel = document.getElementById('setup-panel');
+        const userAvatar = document.querySelector('.user-avatar');
+        const graphContainer = document.getElementById('graph-container');
+
+        // Initialize Dashboard
+        async function initDashboard() {
+            currentUser = await getCurrentUser();
+
+            if (!currentUser) {
+                window.location.href = 'login.html';
+                return;
+            }
+
+            const { data: profile } = await getProfile(currentUser.id);
+            currentProfile = profile;
+
+            // Update UI
+            if (currentProfile) {
+                userAvatar.textContent = currentProfile.full_name ? currentProfile.full_name.charAt(0).toUpperCase() : 'U';
+                if (currentProfile.avatar_url) {
+                    // Optional: Set background image if avatar_url is valid image
+                    // userAvatar.style.backgroundImage = `url(${ currentProfile.avatar_url })`;
+                }
+            }
+
+            // Check for existing active project
+            checkActiveProject();
+        }
+
+        initDashboard();
+
+        // Logout
+        window.logout = async () => {
+            await signOut();
+            window.location.href = 'index.html';
+        };
+
+        // Attach logout to button
+        document.querySelector('.ri-logout-box-line').parentElement.onclick = window.logout;
+
+        // UI Logic
+        window.selectMode = (element, mode) => {
+            document.querySelectorAll('.study-mode-card').forEach(card => card.classList.remove('selected'));
+            element.classList.add('selected');
+            selectedMode = mode;
+        };
+
+        window.openModal = (id) => {
+            document.getElementById(id).classList.add('active');
+        };
+
+        window.closeModal = (id) => {
+            document.getElementById(id).classList.remove('active');
+        };
+
+        window.saveApiKey = () => {
+            const key = apiKeyInput.value;
+            if (key) {
+                localStorage.setItem('gemini_api_key', key);
+                alert('API Key saved!');
+                window.closeModal('api-key-modal');
+            } else {
+                alert('Please enter a valid key.');
+            }
+        };
+
+        window.startProcessing = async () => {
+            const apiKey = localStorage.getItem('gemini_api_key');
+            if (!apiKey) {
+                window.openModal('api-key-modal');
+                return;
+            }
+
+            const file = fileInput.files[0];
+            if (!file) {
+                alert('Please upload a file first.');
+                return;
+            }
+
+            const btn = document.querySelector('button[onclick="startProcessing()"]');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<i class="ri-loader-4-line ri-spin"></i> Processing...';
+            btn.disabled = true;
+
+            try {
+                // 1. Upload file to Supabase Storage
+                const fileExt = file.name.split('.').pop();
+                const fileName = `${currentUser.id}/${Date.now()}.${fileExt}`;
+                const filePath = `${fileName}`;
+
+                const { error: uploadError } = await supabase.storage
+                    .from('documents')
+                    .upload(filePath, file);
+
+                if (uploadError) throw uploadError;
+
+                // 2. Create Project Entry
+                const { data: projectData, error: dbError } = await supabase
+                    .from('documents')
+                    .insert({
+                        user_id: currentUser.id,
+                        title: file.name,
+                        file_path: filePath,
+                        status: 'uploaded',
+                        study_mode: selectedMode
+                    })
+                    .select()
+                    .single();
+
+                if (dbError) throw dbError;
+
+                // 3. Trigger Backend Processing
+                const BACKEND_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+                    ? 'http://127.0.0.1:8000'
+                    : '/api';
+
+                const response = await fetch(`${BACKEND_URL}/process`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ document_id: projectData.id }),
+                });
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(`Failed to start processing: ${response.status} ${response.statusText} - ${errorText}`);
+                }
+
+                setupPanel.style.display = 'none';
+                alert('Project created! Graph generation started.');
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+
+                // Start polling for updates
+                pollForUpdates(projectData.id);
+
+            } catch (error) {
+                console.error(error);
+                alert('Error: ' + error.message);
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }
+        };
+
+        async function checkActiveProject() {
+            // Check if there's a recently active project (optional feature)
+            // For now, we just wait for user to upload
+        }
+
+        async function pollForUpdates(documentId) {
+            const pollInterval = setInterval(async () => {
+                const { data, error } = await supabase
+                    .from('documents')
+                    .select('*')
+                    .eq('id', documentId)
+                    .single();
+
+                if (error) {
+                    console.error("Polling error:", error);
+                    clearInterval(pollInterval);
+                    return;
+                }
+
+                if (data.status === 'completed' || data.status === 'processed') {
+                    clearInterval(pollInterval);
+                    if (data.graph_data) {
+                        renderGraph(data.graph_data, documentId);
+                    }
+                } else if (data.status === 'failed') {
+                    clearInterval(pollInterval);
+                    alert("Processing failed.");
+                    setupPanel.style.display = 'block';
+                }
+            }, 3000); // Poll every 3 seconds
+        }
+
+        function renderGraph(graphData, documentId) {
+            // Transform data for 3d-force-graph
+            // It expects { nodes: [], links: [] }
+            // Our backend returns { nodes: [], edges: [] } with 'source', 'target'
+
+            const gData = {
+                nodes: graphData.nodes.map(n => ({ id: n.id, name: n.label, val: n.level || 1, ...n })),
+                links: graphData.edges.map(e => ({ source: e.source, target: e.target, ...e }))
+            };
+
+            Graph = ForceGraph3D()
+                (graphContainer)
+                .graphData(gData)
+                .nodeLabel('name')
+                .nodeAutoColorBy('group')
+                .nodeVal('val')
+                .linkDirectionalArrowLength(3.5)
+                .linkDirectionalArrowRelPos(1)
+                .onNodeClick(node => {
+                    // Aim at node from outside it
+                    const distance = 40;
+                    const distRatio = 1 + distance / Math.hypot(node.x, node.y, node.z);
+
+                    Graph.cameraPosition(
+                        { x: node.x * distRatio, y: node.y * distRatio, z: node.z * distRatio }, // new position
+                        node, // lookAt ({ x, y, z })
+                        3000  // ms transition duration
+                    );
+
+                    // Trigger scraping for this node
+                    handleNodeClick(node, documentId);
+                });
+        }
+
+        async function handleNodeClick(node, documentId) {
+            if (confirm(`Do you want to explore more about "${node.name}"?`)) {
+                const BACKEND_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+                    ? 'http://127.0.0.1:8000'
+                    : '/api';
+
+                try {
+                    const response = await fetch(`${BACKEND_URL}/scrape`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            document_id: documentId,
+                            node_id: node.id,
+                            topic: node.name
+                        })
+                    });
+
+                    if (response.ok) {
+                        const resData = await response.json();
+                        alert(`Found ${resData.new_nodes} new concepts! Updating graph...`);
+                        // Re-fetch graph data
+                        const { data } = await supabase
+                            .from('documents')
+                            .select('graph_data')
+                            .eq('id', documentId)
+                            .single();
+
+                        if (data && data.graph_data) {
+                            renderGraph(data.graph_data, documentId);
+                        }
+                    } else {
+                        alert("Failed to fetch more info.");
+                    }
+                } catch (e) {
+                    console.error(e);
+                    alert("Error expanding node.");
+                }
+            }
+        }
+
+        // Event Listeners
+        document.getElementById('api-key-btn').addEventListener('click', () => window.openModal('api-key-modal'));
+
+        dropZone.addEventListener('click', () => fileInput.click());
+
+        dropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropZone.style.borderColor = 'var(--primary-color)';
+            dropZone.style.background = 'rgba(0, 229, 255, 0.05)';
+        });
+
+        dropZone.addEventListener('dragleave', (e) => {
+            e.preventDefault();
+            dropZone.style.borderColor = 'var(--border-color)';
+            dropZone.style.background = 'var(--glass-bg)';
+        });
+
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.style.borderColor = 'var(--border-color)';
+            dropZone.style.background = 'var(--glass-bg)';
+
+            if (e.dataTransfer.files.length) {
+                fileInput.files = e.dataTransfer.files;
+                const file = e.dataTransfer.files[0];
+                alert(`File selected: ${file.name}`);
+            }
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length) {
+                alert(`File selected: ${e.target.files[0].name}`);
+            }
+        });
+
+    </script>
+</body>
+
+</html>

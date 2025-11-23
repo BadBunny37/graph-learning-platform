@@ -1,0 +1,12 @@
+fastapi
+uvicorn
+supabase
+python-multipart
+docling
+paddlepaddle
+paddleocr
+google-generativeai
+beautifulsoup4
+playwright
+python-dotenv
+requests
